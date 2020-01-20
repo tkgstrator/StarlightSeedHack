@@ -4,7 +4,13 @@
 
 namespace coop
 {
-u32 Seedhack::getWaveInfo(u32 seed, u32 search)
+
+void Seedhack::init(u32 firstseed)
+{
+    seed = firstseed;
+}
+
+u32 Seedhack::getWaveInfo()
 {
     sead::Random rnd;
     rnd.init(seed);
@@ -12,6 +18,7 @@ u32 Seedhack::getWaveInfo(u32 seed, u32 search)
     struct Wave mWave;
     struct Prob mProb;
     u64 sum = 0;
+    u32 info = 0;
 
     for (u32 wave = 0; wave < 3; wave++)
     {
@@ -35,16 +42,18 @@ u32 Seedhack::getWaveInfo(u32 seed, u32 search)
             if ((rnd.getU32() * sum >> 0x20) < mProb.tide[tide])
                 mWave.event[wave] == 6 ? mWave.tide[wave] = 0 : mWave.tide[wave] = tide;
         }
+        info = info * 100 + mWave.tide[wave] * 10 + mWave.event[wave];
     }
-    return mWave.tide[0] * 100000 + mWave.event[0] * 10000 + mWave.tide[1] * 1000 + mWave.event[1] * 100 + mWave.tide[2] * 10 + mWave.event[2];
+    return info;
 }
 
-void Seedhack::getGeyser(u32 seed, u32 size)
+void Seedhack::getGeyser(u32 size)
 {
     sead::Random rnd;
     rnd.init(seed);
 
     rnd.getU32();
+    
     u32 gameSeed[3] = {seed, rnd.getU32(), rnd.getU32()};
 
     for (u32 wave = 0; wave < 3; wave++)
@@ -53,11 +62,12 @@ void Seedhack::getGeyser(u32 seed, u32 size)
         grnd.init(gameSeed[wave]);
         u64 gArray[size];
         // Initialize Array of Geyser
+        gpos[wave] = "";
         for (u64 j = 0; j < size; j++)
         {
             gArray[j] = j;
         }
-        for (u64 i = 0; i < 15; i++)
+        for (u64 i = 0; i < 12; i++)
         {
             for (u64 sel = size - 1; sel > 0; sel--)
             {

@@ -1,7 +1,7 @@
 CC	= g++
-CFLAGS	= -g -std=c++11 -MMD -MP
-LDFLAGS = 
-LIBS		= 
+CFLAGS	= -g -std=c++14 -MMD -MP -Ofast -fopenmp
+LDFLAGS = -g -Ofast -fopenmp 
+LIBS	= 
 INCLUDE = -I ./include
 SRC_DIR = ./source
 OBJ_DIR = ./build

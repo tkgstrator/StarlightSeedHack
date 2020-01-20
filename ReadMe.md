@@ -26,7 +26,7 @@ The range for search. If you input 100000 as range, this program searches the id
 
 # For example 
 
-`SearchSeed.exe 201306 65535`
+`SeedHack.exe 201306 65535`
 
 ```
 0x000029BA

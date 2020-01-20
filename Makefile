@@ -1,6 +1,6 @@
 CC	= g++
-CFLAGS	= -g -std=c++14 -MMD -MP -Ofast -fopenmp
-LDFLAGS = -g -Ofast -fopenmp 
+CFLAGS	= -g -std=c++11 -MMD -MP -Ofast -fopenmp
+LDFLAGS = -Ofast -fopenmp
 LIBS	= 
 INCLUDE = -I ./include
 SRC_DIR = ./source
@@ -10,8 +10,7 @@ OBJS		= $(subst $(SRC_DIR),$(OBJ_DIR), $(SOURCES:.cpp=.o))
 TARGET	= SeedHack
 DEPENDS = $(OBJS:.o=.d)
 
-all: clean $(OBJS) $(TARGET)
-
+all: clean $(OBJS) $(TARGET) run
 $(TARGET): $(OBJS) $(LIBS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
@@ -19,11 +18,13 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@if [ ! -d $(OBJ_DIR) ]; \
 		then echo "mkdir -p $(OBJ_DIR)"; mkdir -p $(OBJ_DIR); \
 	fi
-	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $< 
+	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
+run:
+	./SeedHack 222022 0xFFFFFF
 
 clean:
 	$(RM) $(OBJS) $(TARGET) $(DEPENDS)
 
 -include $(DEPENDS)
 
-.PHONY: all clean
+.PHONY: all clean run

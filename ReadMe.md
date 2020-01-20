@@ -3,7 +3,7 @@ SeedHack is the best way to fix waves for Salmon Run in the Shoal. Please make s
 
 # How to use SeedHack
 
-`SearchSeed.exe WaveInfo(Int) Range(Int)`
+`SeedHack.exe WaveInfo(Int) Range(Int)`
 
 ## WaveInfo
 Wave: an integer number for waves combination.

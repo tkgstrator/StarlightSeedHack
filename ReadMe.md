@@ -3,13 +3,17 @@ SeedHack is the best way to fix waves for Salmon Run in the Shoal. Please make s
 
 # How to use SeedHack
 
+## 0.0.1
 `SeedHack.exe WaveInfo(Int) Range(Int)`
+
+## 0.1.0
+`SeedHack.exe WaveInfo(RegExp) Range(Int) [Geyser Position(RegExp)]`
 
 ## WaveInfo
 Wave: an integer number for waves combination.
 
 | Event | High-Tide | Middle-Tide | Low-Tide |
-| --- |---|---|---|
+| :---: | :---: | :---: | :---: |
 | NoEvent | 20  | 10  | 00 |
 | Rush | 21 | 11 | - |
 | Goldie Seeking | 22  | 12 | - |
@@ -23,6 +27,26 @@ If you want the waves(High-Tide Griller, Middle-Tide NoEvent, Low-Tide Fog), you
 ## Range
 
 The range for search. If you input 100000 as range, this program searches the id to 100000 from 0.
+
+## Geyser Position
+
+I've already researched only Ruins of Ark Polaris and Salmonid Smokeyard within High-Tide.
+
+| Event | High-Tide | Middle-Tide |
+| :---: |:---:|:---:|
+| Spawning Grounds | No Test | No Test |
+| Marooner's Bay | No Test | No Test |
+| Lost Outpost | No Test | No Test |
+| Salmonid Smokeyard | [0,1,2,3,4] | No Test|
+| Ruins of Ark Polaris | [0,1,2,3] | No Test |
+
+### RegExp
+
+```cpp
+[01]{N} // the strings having '0' or '1' which size is at least N.
+[^2]{N} // the strings not having '2' which size is at least N.
+
+```
 
 # For example 
 

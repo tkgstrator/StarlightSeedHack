@@ -9,6 +9,23 @@ void Seedhack::init(u32 firstseed)
     seed = firstseed;
 }
 
+void Seedhack::set(u16 stage)
+{
+    switch (stage)
+    {
+    case 3:
+        size = 5;
+        rflag = true;
+        break;
+    case 4:
+        size = 4;
+        rflag = false; // Reuse Random Sead Flag
+        break;
+    default:
+        break;
+    }
+}
+
 std::string Seedhack::getWaveInfo()
 {
     sead::Random rnd;
@@ -17,7 +34,7 @@ std::string Seedhack::getWaveInfo()
     struct Wave mWave;
     struct Prob mProb;
     std::string waveinfo = "";
-    
+
     for (u16 wave = 0; wave < 3; ++wave)
     {
         for (u64 event = 0, sum = 0; event < 7; ++event)
@@ -25,7 +42,7 @@ std::string Seedhack::getWaveInfo()
             if ((wave > 0) && (mWave.event[wave - 1] != 0) && (mWave.event[wave - 1] == event))
                 continue;
             sum += mProb.event[event];
-            if ((rnd.getU32()  *sum >> 0x20) < mProb.event[event])
+            if ((rnd.getU32() * sum >> 0x20) < mProb.event[event])
             {
                 mWave.event[wave] = event;
             }
@@ -43,13 +60,13 @@ std::string Seedhack::getWaveInfo()
     return waveinfo;
 }
 
-std::vector<std::string> Seedhack::getGeyser(u32 size)
+std::vector<std::string> Seedhack::getGeyser()
 {
     sead::Random rnd;
     std::vector<std::string> gpos(3);
     rnd.init(seed);
     rnd.getU32();
-    
+
     u32 gameSeed[3] = {seed, rnd.getU32(), rnd.getU32()};
 
     for (u16 wave = 0; wave < 3; ++wave)
@@ -62,7 +79,7 @@ std::vector<std::string> Seedhack::getGeyser(u32 size)
         {
             gArray[j] = j;
         }
-        for (u16 i = 0; i < 10; ++i)
+        for (u16 i = 0; i < 15; ++i)
         {
             for (u64 sel = size - 1; sel > 0; --sel)
             {

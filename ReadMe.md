@@ -43,8 +43,9 @@ I've already researched only Ruins of Ark Polaris and Salmonid Smokeyard within 
 ### RegExp
 
 ```cpp
-[01]{N} // the strings having '0' or '1' which size is at least N.
-[^2]{N} // the strings not having '2' which size is at least N.
+1111    // the string having the substring "1111". 
+[01]{N} // the string having '0' or '1' which size is at least N.
+[^2]{N} // the string not having '2' which size is at least N.
 
 ```
 

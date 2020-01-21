@@ -11,8 +11,11 @@ class Seedhack
 {
 public:
     void init(u32);
-    std::vector<std::string> getGeyser(u32);
+    void set(u16);
+    std::vector<std::string> getGeyser();
     std::string getWaveInfo();
+    bool rflag;
+    u16 size;
     u32 seed;
 
     struct Prob

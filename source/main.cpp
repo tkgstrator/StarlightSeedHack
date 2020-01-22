@@ -34,9 +34,17 @@ int main(int argc, char **argv)
     ofstream ofs("seeds.txt");
     clock_t start = clock();
 
+    // Checking Arguments.
     for (u16 i = 1; i < argc; ++i)
     {
-        cout << i << " : " << argv[i] << endl;
+        if (!strcmp(argv[i], "-D"))
+        {
+            cout << "Debug Mode" << endl;
+            for (u16 j = 1; j < argc; ++j)
+            {
+            cout << j << " : " << argv[j] << endl;
+            }
+        }
         if (argc < 2)
             return -1;
         if (i == 1)
@@ -60,20 +68,28 @@ int main(int argc, char **argv)
     }
 
     cout << "Welcome Starlight SeedHack!" << endl;
-    cout << "Settings: Threads(" << threads << ") Wave(" << wave << ") Range:(" << range << ")" << endl;
+    cout << "Made by : tkgstrator" << endl;
+    cout << "Thanks  : shadowninja108" << endl;
+    cout << "        : container12345" << endl;
+    cout << "Threads : " << threads << endl;
+    cout << "Wave    : " << wave << endl;
+    cout << "Range   : " << range << endl;
+    cout << "Stage   : " << stage_id << endl;
+    cout << "Regex   : " << (rflag ? "Enable" : "Disable")<< endl;
+    cout << "Geyser  : " << (sflag ? "Enable" : "Disable") << endl;
+    cout << "Sequence: " << (gflag ? "Enable" : "Disable") << endl;
 
 #pragma omp parallel for
     for (u32 seed = 0x0; seed < range; ++seed)
     {
         coop::Seedhack tkg;
-        tkg.init(seed);
+        tkg.init(seed); // Set First seed.
         string waveinfo = tkg.getWaveInfo();
-        // if (regex_match(waveinfo, regex(wave)))
         if (!rflag ? waveinfo == wave : regex_match(waveinfo, regex(wave)))
         {
             ostringstream sout;
             tkg.set(stage_id);
-            if (!sflag) // Checking Stage ID
+            if (!sflag) // Checking Stage ID.
             {
                 sout << "0x" << setw(8) << uppercase << setfill('0') << hex << seed << "," << dec << waveinfo;
             }
@@ -122,8 +138,7 @@ int main(int argc, char **argv)
     {
         ofs << val << endl;
     }
-    clock_t end = clock();
-    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0 / threads;
-    cout << time << "ms" << endl;
+    const double time = static_cast<double>(clock() - start) / CLOCKS_PER_SEC * 1000.0 / threads;
+    cout << "Time    : " << time << "ms" << endl;
     return 0;
 }

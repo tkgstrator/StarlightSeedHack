@@ -1,5 +1,6 @@
 #include "coop.h"
 #include "sead/random.h"
+#include <iostream>
 
 namespace coop
 {
@@ -13,13 +14,21 @@ void Seedhack::set(u16 stage)
 {
     switch (stage)
     {
+    case 1:
+        size = 5;
+        // rflag = false;
+        break;
+    case 2:
+        size = 4;
+        // rflag = false;
+        break;
     case 3:
         size = 5;
-        rflag = true;
+        // rflag = true;
         break;
     case 4:
         size = 4;
-        rflag = false; // Reuse Random Sead Flag
+        // rflag = false; // Reuse Random Sead Flag
         break;
     default:
         break;
@@ -66,8 +75,10 @@ std::vector<std::string> Seedhack::getGeyser()
     std::vector<std::string> gpos(3);
     rnd.init(seed);
     rnd.getU32();
-
+    
     u32 gameSeed[3] = {seed, rnd.getU32(), rnd.getU32()};
+
+    struct Fune mStage;
 
     for (u16 wave = 0; wave < 3; ++wave)
     {
@@ -86,7 +97,18 @@ std::vector<std::string> Seedhack::getGeyser()
                 u64 index = (grnd.getU32() * (sel + 1)) >> 0x20;
                 std::swap(gArray[sel], gArray[index]);
             }
-            gpos[wave] += std::to_string(gArray[0]);
+            if (mStage.reuse[gArray[0]])
+            {
+                u64 sel = gArray[0];
+                u64 size = std::extent<decltype(mStage.goal), 1>::value;
+                u64 index = (grnd.getU32() * (size)) >> 0x20;
+                // std::string goal = mStage.goal[sel][index];
+                gpos[wave] += "(" + std::to_string(sel) + mStage.goal[sel][index] + ")";
+            }
+            else
+            {
+                gpos[wave] += "(" + std::to_string(gArray[0]) + mStage.goal[gArray[0]][0] + ")";
+            }
         }
     }
     return gpos;

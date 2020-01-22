@@ -1,6 +1,6 @@
 CC	= g++
-CFLAGS	= -g -std=c++11 -MMD -MP -Ofast -fopenmp
-LDFLAGS = -Ofast -fopenmp
+CFLAGS	= -g -std=c++11 -MMD -MP -Wall -Ofast -fopenmp
+LDFLAGS = -Ofast -Wall -fopenmp
 LIBS	= 
 INCLUDE = -I ./include
 SRC_DIR = ./source
@@ -20,7 +20,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	fi
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 run:
-	./SeedHack 222322 0x00FFFFFF -S 4
+	./SeedHack 22.... 0x00200 -S 1 -R
 
 clean:
 	$(RM) $(OBJS) $(TARGET) $(DEPENDS)

@@ -30,13 +30,13 @@ The range for search. If you input 100000 as range, this program searches the id
 
 ## Geyser Position
 
-I've already researched only Ruins of Ark Polaris and Salmonid Smokeyard within High-Tide.
+I've resarched every stage within High-Tide.
 
 | Event | High-Tide | Middle-Tide |
 | :---: |:---:|:---:|
-| Spawning Grounds | No Test | No Test |
-| Marooner's Bay | No Test | No Test |
-| Lost Outpost | No Test | No Test |
+| Spawning Grounds | [0,1,2,3,4] | No Test |
+| Marooner's Bay | [0,1,2,3] | No Test |
+| Lost Outpost | [0,1,2,3,4]| No Test |
 | Salmonid Smokeyard | [0,1,2,3,4] | No Test|
 | Ruins of Ark Polaris | [0,1,2,3] | No Test |
 

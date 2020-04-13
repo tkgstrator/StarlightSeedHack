@@ -18,7 +18,7 @@ Wave: an integer number for waves combination.
 | Rush | 21 | 11 | - |
 | Goldie Seeking | 22  | 12 | - |
 | The Griller | 23  | 13  | - |
-| The MotherShip | 24  | 14  | 04 |
+| The Mothership | 24  | 14  | 04 |
 | Fog | 25  | 15  | 05  |
 | Cohock Charge | -  | -  | 06 |
 

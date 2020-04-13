@@ -20,7 +20,7 @@ Wave: an integer number for waves combination.
 | The Griller | 23  | 13  | - |
 | The MotherShip | 24  | 14  | 04 |
 | Fog | 25  | 15  | 05  |
-| Cohook Charge | -  | -  | 06 |
+| Cohock Charge | -  | -  | 06 |
 
 If you want the waves(High-Tide Griller, Middle-Tide NoEvent, Low-Tide Fog), you input a number like as 231005
 

@@ -27,45 +27,13 @@ int main(int argc, char **argv)
     bool sflag = false; // Stage ID Flag.
     bool rflag = false; // Regex for WAVE Information Flag.
     bool gflag = false; // Regex for Geyser Sequence Flag.
-    u16 stage_id;
-    u32 range;
+    u16 stage_id = 4;
+    u32 range = 0xFFFF;
     string wave, seq;
     vector<string> seeds;
     ofstream ofs("seeds.txt");
     clock_t start = clock();
-
-    // Checking Arguments.
-    for (u16 i = 1; i < argc; ++i)
-    {
-        if (!strcmp(argv[i], "-D"))
-        {
-            cout << "Debug Mode" << endl;
-            for (u16 j = 1; j < argc; ++j)
-            {
-            cout << j << " : " << argv[j] << endl;
-            }
-        }
-        if (argc < 2)
-            return -1;
-        if (i == 1)
-            wave = argv[1];
-        if (i == 2)
-            range = atof(argv[2]);
-        if (!strcmp(argv[i], "-S"))
-        {
-            sflag = true;
-            stage_id = atoi(argv[i + 1]);
-        }
-        if (!strcmp(argv[i], "-G"))
-        {
-            gflag = true;
-            seq = argv[i + 1];
-        }
-        if (!strcmp(argv[i], "-R"))
-        {
-            rflag = true;
-        }
-    }
+    wave = "22..22";
 
     cout << "Welcome Starlight SeedHack!" << endl;
     cout << "Made by : tkgstrator" << endl;
@@ -75,55 +43,67 @@ int main(int argc, char **argv)
     cout << "Wave    : " << wave << endl;
     cout << "Range   : " << range << endl;
     cout << "Stage   : " << stage_id << endl;
-    cout << "Regex   : " << (rflag ? "Enable" : "Disable")<< endl;
-    cout << "Geyser  : " << (sflag ? "Enable" : "Disable") << endl;
-    cout << "Sequence: " << (gflag ? "Enable" : "Disable") << endl;
+    // cout << "Regex   : " << (rflag ? "Enable" : "Disable")<< endl;
+    // cout << "Geyser  : " << (sflag ? "Enable" : "Disable") << endl;
+    // cout << "Sequence: " << (gflag ? "Enable" : "Disable") << endl;
 
+    // Checking Arguments.
+    for (u16 i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "-r"))
+        { // Load Seeds from text file.
+            std::ifstream ifs(argv[i + 1]);
+            if (ifs.fail())
+            {
+                std::cout << "No such file on directory." << std::endl;
+                return -1;
+            }
+
+        }
+    }
+
+    rflag = true;
 #pragma omp parallel for
     for (u32 seed = 0x0; seed < range; ++seed)
     {
-        coop::Seedhack tkg;
+        if (seed % (range / 1000) == 0)
+        {
+            std::cout << (double(seed) / double(range)) * 100 << "%" << std::endl;
+        }
+        Coop::Seedhack tkg;
         tkg.init(seed); // Set First seed.
         string waveinfo = tkg.getWaveInfo();
         if (!rflag ? waveinfo == wave : regex_match(waveinfo, regex(wave)))
         {
             ostringstream sout;
-            tkg.set(stage_id);
-            if (!sflag) // Checking Stage ID.
+            std::vector<std::string> gpos = tkg.getGeyser(stage_id);
+            if (regex_match(waveinfo, w13)) // Wave1 and Wave3
             {
-                sout << "0x" << setw(8) << uppercase << setfill('0') << hex << seed << "," << dec << waveinfo;
-            }
-            if (regex_match(waveinfo, w13) && sflag)
-            {
-                std::vector<std::string> gpos = tkg.getGeyser();
-                if ((regex_search(gpos[0], regex(seq)) || regex_search(gpos[2], regex(seq))) || !gflag)
+                if ((regex_search(gpos[0], regex(seq)) || regex_search(gpos[2], regex(seq))))
                 {
                     sout << "0x" << setw(8) << uppercase << setfill('0') << hex << seed << "," << dec << waveinfo;
                     sout << "," << gpos[0] << "," << gpos[2];
                 }
             }
-            if (regex_match(waveinfo, w01) & sflag)
+            if (regex_match(waveinfo, w01)) // Wave1
             {
-                std::vector<std::string> gpos = tkg.getGeyser();
-                if ((regex_search(gpos[0], regex(seq)) && gflag) || !gflag)
+                if ((regex_search(gpos[0], regex(seq))))
                 {
                     sout << "0x" << setw(8) << uppercase << setfill('0') << hex << seed << "," << dec << waveinfo;
                     sout << "," << gpos[0];
                 }
             }
-            if (regex_match(waveinfo, w02) & sflag)
+            if (regex_match(waveinfo, w02)) // Wave2
             {
-                std::vector<std::string> gpos = tkg.getGeyser();
-                if ((regex_search(gpos[1], regex(seq)) && gflag) || !gflag)
+                if ((regex_search(gpos[1], regex(seq))))
                 {
                     sout << "0x" << setw(8) << uppercase << setfill('0') << hex << seed << "," << dec << waveinfo;
                     sout << "," << gpos[1];
                 }
             }
-            if (regex_match(waveinfo, w03) & sflag)
+            if (regex_match(waveinfo, w03)) // Wave3
             {
-                std::vector<std::string> gpos = tkg.getGeyser();
-                if ((regex_search(gpos[2], regex(seq)) && gflag) || !gflag)
+                if ((regex_search(gpos[2], regex(seq))))
                 {
                     sout << "0x" << setw(8) << uppercase << setfill('0') << hex << seed << "," << dec << waveinfo;
                     sout << "," << gpos[2];

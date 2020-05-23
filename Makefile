@@ -20,7 +20,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	fi
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 run:
-	./SeedHack 22.... 0x00200 -S 1 -R
+	./SeedHack
 
 clean:
 	$(RM) $(OBJS) $(TARGET) $(DEPENDS)

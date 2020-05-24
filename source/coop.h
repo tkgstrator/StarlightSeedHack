@@ -19,12 +19,12 @@ namespace Coop
         };
         Setting();
         ~Setting() = default;
-        void getWaveInfo(std::string);
+        bool getWaveInfo(std::string);
         std::string mSetting;
         struct Prob
         {
-            u16 event[7] = {18, 1, 1, 1, 1, 1, 1};
-            u16 tide[3] = {1, 3, 1};
+            const u16 event[7] = {18, 1, 1, 1, 1, 1, 1};
+            const u16 tide[3] = {1, 3, 1};
         };
 
         struct Wave
@@ -35,9 +35,9 @@ namespace Coop
 
     protected:
         sead::Random rnd;
-        u32 mSeed;
-        bool mFast;
-        bool mRegex;
+        const u32 mSeed;
+        const bool mFast;
+        const bool mRegex;
     };
 
     class Geyser

@@ -1,10 +1,9 @@
 #include "coop.h"
-
 #include <iostream>
 
 namespace Coop
 {
-    void Setting::getWaveInfo(std::string mWaveInfo)
+    bool Setting::getWaveInfo(std::string mWaveInfo)
     {
         struct Wave mWave;
         struct Prob mProb;
@@ -29,17 +28,22 @@ namespace Coop
                     mWave.event[wave] == 6 ? mWave.tide[wave] = 0 : mWave.tide[wave] = tide;
             }
             std::string tmp = std::to_string(mWave.tide[wave]) + std::to_string(mWave.event[wave]);
-            if (mFast)
-            {
-                std::cout << "Seed: " << mSeed << " Comp: " << tmp << mWaveInfo.substr(wave * 2, 2) << std::endl;
-                if (mRegex)
-                    if (!std::regex_match(tmp, std::regex(mWaveInfo.substr(wave * 2, 2))))
-                        throw - 1;
-                if (mWaveInfo.substr(wave * 2, 2) != tmp)
-                    throw - 1;
-            }
+            if (mRegex) // mRegex is Enable
+                if (!std::regex_match(mSetting, std::regex(mWaveInfo.substr(wave * 2, 2))))
+                    return false;
+            // if (mFast) // mFast is Enable
+            // {
+            //     // std::cout << "Seed: " << mSeed << " Comp: " << tmp << "=>" <<mWaveInfo.substr(wave * 2, 2) << std::endl;
+            //     if (mRegex) // mRegex is Enable
+            //         if (!std::regex_match(mSetting + tmp, std::regex(mWaveInfo.substr(0, wave * 2 + 2))))
+            //             throw - 1;
+            //     if (!mRegex) // mRegex is Disable
+            //         if (mWaveInfo.substr(wave * 2, 2) != tmp)
+            //             throw - 1;
+            // }
             mSetting += tmp;
         }
+        return true;
     }
 
     Geyser::Geyser(u16 stage, u32 seed)
@@ -83,13 +87,14 @@ namespace Coop
     {
         for (u16 wave = 0; wave < 3; ++wave)
         {
+            // ??????
             std::vector<bool> tReuse;
             std::vector<std::string> tSucc;
             std::vector<std::vector<std::string>> tGoal;
             std::copy(mSucc.begin(), mSucc.end(), std::back_inserter(tSucc));
             std::copy(mReuse.begin(), mReuse.end(), std::back_inserter(tReuse));
             std::copy(mGoal.begin(), mGoal.end(), std::back_inserter(tGoal));
-            
+
             grnd.init(mGameSeed[wave]);
             for (u16 i = 0; i < 15; ++i)
             {

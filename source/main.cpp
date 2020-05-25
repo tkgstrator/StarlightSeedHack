@@ -8,7 +8,7 @@
 #include <time.h>
 #include <omp.h>
 #include <cmath>
-#include <algorithm>
+// #include <algorithm>
 #ifdef _OPENMP
 u16 threads = omp_get_max_threads();
 #else
@@ -24,20 +24,20 @@ static const regex w03 = regex("^(?!.*22.{4}).*(?=.{4}22).*$");
 int main(int argc, char **argv)
 {
     // Initial
-    std::string wave, seq;
+    std::string wave;
     std::vector<bool> mMode = {false, false, false, false};
     std::vector<string> seeds;      // Output file
     std::ifstream ifs;              // Input File
-    std::ofstream ofs("seeds.txt"); // Output File
+    std::ofstream ofs;
     u16 stage;                      // Stage ID
     u32 range;                      // Search Range
     clock_t start = clock();
 
     // Checking Arguments.
-    if (argc < 3)
+    if (argc < 4)
     {
-        std::cout << "[usage] ./SeedHack WaveInfo Range [Stage]" << std::endl;
-        std::cout << "[usage] ./SeedHack -r TEXTFILE [Stage]" << std::endl;
+        std::cout << "[usage] ./SeedHack WaveInfo Range Stage" << std::endl;
+        std::cout << "[usage] ./SeedHack -r TEXTFILE Stage" << std::endl;
         return -1;
     }
 
@@ -45,11 +45,11 @@ int main(int argc, char **argv)
     {
         if (!strcmp(argv[i], "-R"))
         {
-            mMode[1] = true;
+            mMode[1] = true; // Flag of Regular Expression
         }
         if (!strcmp(argv[i], "-E"))
         {
-            mMode[2] = true;
+            mMode[2] = true; // Flag of Gayer Position
         }
         if (!strcmp(argv[i], "-r"))
         {
@@ -57,32 +57,37 @@ int main(int argc, char **argv)
             ifs.open(std::string(argv[i + 1]));
             if (ifs.fail())
             {
-                std::cout << std::string(argv[i + 1]) + ", No such file on directory." << std::endl;
+                std::cout << std::string(argv[i + 1]) + ", No such File." << std::endl;
                 return -1;
             }
             mMode[0] = true;
         }
     }
-    if (!mMode[0])
+    if (!mMode[0]) // Sequential
     {
         try
         {
             wave = std::string(argv[1]); // Search WaveInfo
+            // static const std::regex wave = std::regex(std::string(argv[1])); // Search WaveInfo
             range = std::atof(argv[2]);  // Search Range
             stage = std::atoi(argv[3]);  // Search WaveInfo
+            ofs.open(wave + ".txt"); // Output File
         }
         catch (int error)
         {
             std::cout << "[usage] ./SeedHack WaveInfo Range" << std::endl;
             std::cout << "[usage] ./SeedHack -r TEXTFILE" << std::endl;
         }
+    } else { // Sparse
+            stage = std::atoi(argv[3]);  // Search WaveInfo
+            ofs.open("[" + std::to_string(stage) + "]" + std::string(argv[2])); // Output File
     }
 
     cout << "Welcome Starlight SeedHack! Do no evil" << endl;
     cout << "Author       : tkgstrator" << endl;
     cout << "Reference    : shadowninja108, container12345" << endl;
     cout << "Threads      : " << threads << endl;
-    cout << "Input Wave   : " << (mMode[0] ? "Unknown" : wave) << endl;
+    cout << "Input Wave   : " << (mMode[0] ? "Text File" : wave) << endl;
     cout << "Geyser Array : " << (mMode[2] ? "Enable" : "Disable") << endl;
     cout << "Input Stage  : " << (mMode[2] ? "No Set" : std::to_string(stage)) << endl;
     cout << "Search Range : " << (mMode[0] ? "Unknown" : std::to_string(range)) << endl;
@@ -96,7 +101,7 @@ int main(int argc, char **argv)
         for (; getline(ifs, mSeed);)
         {
             u32 seed = static_cast<unsigned int>(std::stol(mSeed, NULL, 0));
-            Coop::Setting SH(seed, false);
+            Coop::Setting SH(seed, false, mMode[1]);
             if (SH.getWaveInfo(wave))
             {
                 ostringstream sout;
@@ -124,14 +129,10 @@ int main(int argc, char **argv)
 #pragma omp parallel for
         for (u32 seed = 0x0; seed < range; ++seed)
         {
-            // if (seed % (range / 10000) == 0)
-            // {
-            //     if (omp_get_thread_num() == 0)
-            //     {
-            //         std::cout << std::round(threads * (double(seed) / double(range)) * 10000) / 100 << "%" << std::endl;
-            //     }
-            // }
-            Coop::Setting SH(seed, false, mMode[1]);
+            if(omp_get_thread_num() == 0 && seed % (range / 1000) == 0){
+                fprintf(stderr, "\r[%010u / %010u]", seed * 8, range);
+            }
+            Coop::Setting SH(seed, true, mMode[1]);
             if (SH.getWaveInfo(wave))
             {
                 ostringstream sout;
@@ -160,6 +161,8 @@ int main(int argc, char **argv)
         ofs << val << endl;
     }
     const double time = static_cast<double>(clock() - start) / CLOCKS_PER_SEC * 1000.0 / threads;
-    cout << "Running time : " << time << "ms" << endl;
+    fprintf(stderr, "\r[%010u / %010u]\n", range, range);
+    // std::cout << std::endl;
+    std::cout << "Running time : " << time << "ms" << std::endl;
     return 0;
 }

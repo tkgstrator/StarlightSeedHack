@@ -20,6 +20,7 @@ namespace Coop
         Setting();
         ~Setting() = default;
         bool getWaveInfo(std::string);
+        // bool getWaveInfo(std::regex);
         std::string mSetting;
         struct Prob
         {
@@ -35,6 +36,8 @@ namespace Coop
 
     protected:
         sead::Random rnd;
+        // static const std::regex reg[1] = [std::regex("")];
+        // const std::regex reg[2] = {std::regex(""), std::regex("")};
         const u32 mSeed;
         const bool mFast;
         const bool mRegex;

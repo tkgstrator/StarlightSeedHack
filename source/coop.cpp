@@ -9,7 +9,7 @@ namespace Coop
         struct Prob mProb;
         for (u16 wave = 0; wave < 3; ++wave)
         {
-            for (u64 event = 0, sum = 0; event < 7; ++event)
+            for (u64 event = 0, sum = 0; event < 7; ++event) // Calculate Wave Event
             {
                 if ((wave > 0) && (mWave.event[wave - 1] != 0) && (mWave.event[wave - 1] == event))
                     continue;
@@ -19,7 +19,7 @@ namespace Coop
                     mWave.event[wave] = event;
                 }
             }
-            for (u64 tide = 0, sum = 0; tide < 3; ++tide)
+            for (u64 tide = 0, sum = 0; tide < 3; ++tide) // Calculate Wave Tide
             {
                 if ((tide == 0) && (1 <= mWave.event[wave] && (mWave.event[wave] <= 3)))
                     continue;
@@ -27,21 +27,13 @@ namespace Coop
                 if ((rnd.getU32() * sum >> 0x20) < mProb.tide[tide])
                     mWave.event[wave] == 6 ? mWave.tide[wave] = 0 : mWave.tide[wave] = tide;
             }
-            std::string tmp = std::to_string(mWave.tide[wave]) + std::to_string(mWave.event[wave]);
-            if (mRegex) // mRegex is Enable
-                if (!std::regex_match(mSetting, std::regex(mWaveInfo.substr(wave * 2, 2))))
+            mSetting += std::to_string(mWave.tide[wave]) + std::to_string(mWave.event[wave]);
+            if (mFast && mRegex) // mRegex is Enable
+                if (!std::regex_match(mSetting, std::regex(mWaveInfo.substr(0, (wave + 1) * 2))))
                     return false;
-            // if (mFast) // mFast is Enable
-            // {
-            //     // std::cout << "Seed: " << mSeed << " Comp: " << tmp << "=>" <<mWaveInfo.substr(wave * 2, 2) << std::endl;
-            //     if (mRegex) // mRegex is Enable
-            //         if (!std::regex_match(mSetting + tmp, std::regex(mWaveInfo.substr(0, wave * 2 + 2))))
-            //             throw - 1;
-            //     if (!mRegex) // mRegex is Disable
-            //         if (mWaveInfo.substr(wave * 2, 2) != tmp)
-            //             throw - 1;
-            // }
-            mSetting += tmp;
+            if (mFast && !mRegex) // mRegex is Disable
+                if (mWaveInfo.substr(wave * 2, 2) != mSetting.substr(wave * 2, 2))
+                    return false;
         }
         return true;
     }
@@ -50,7 +42,7 @@ namespace Coop
     {
         rnd.init(seed);
         rnd.getU32();
-        mGameSeed = {seed, rnd.getU32(), rnd.getU32()};
+        mGameSeed = {seed, rnd.getU32(), rnd.getU32()}; // GameSeed for Calulating Geyser Position.
 
         switch (stage)
         {

@@ -70,7 +70,6 @@ int main(int argc, char **argv)
             wave = std::string(argv[1]); // Search WaveInfo
             // static const std::regex wave = std::regex(std::string(argv[1])); // Search WaveInfo
             range = std::atof(argv[2]);  // Search Range
-            stage = std::atoi(argv[3]);  // Search WaveInfo
             ofs.open(wave + ".txt"); // Output File
         }
         catch (int error)
@@ -79,9 +78,9 @@ int main(int argc, char **argv)
             std::cout << "[usage] ./SeedHack -r TEXTFILE" << std::endl;
         }
     } else { // Sparse
-            stage = std::atoi(argv[3]);  // Search WaveInfo
             ofs.open("[" + std::to_string(stage) + "]" + std::string(argv[2])); // Output File
     }
+    stage = std::atoi(argv[3]); // Select Stage 
 
     cout << "Welcome Starlight SeedHack! Do no evil" << endl;
     cout << "Author       : tkgstrator" << endl;

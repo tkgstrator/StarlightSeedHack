@@ -12,7 +12,7 @@ OBJS		= $(subst $(SRC_DIR),$(OBJ_DIR), $(SOURCES:.cpp=.o))
 TARGET	= SeedHack
 DEPENDS = $(OBJS:.o=.d)
 
-all: clean $(OBJS) $(TARGET) run
+all: clean $(OBJS) $(TARGET)
 $(TARGET): $(OBJS) $(LIBS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
@@ -21,8 +21,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 		then echo "mkdir -p $(OBJ_DIR)"; mkdir -p $(OBJ_DIR); \
 	fi
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
-run:
-	./SeedHack 222322 0xFFFF 4
 
 clean:
 	$(RM) $(OBJS) $(TARGET) $(DEPENDS)

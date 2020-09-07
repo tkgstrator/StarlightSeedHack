@@ -1,18 +1,43 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <div class="home">
+      <h1>What's SeedHack</h1>
+      <p>SeedHack is the best way to fix waves for Salmon Run in the Shoal. Please make sure the console applying SeedHack must be a host.</p>
+      <SeedHack />
+    </div>
+  </v-app>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import SeedHack from "./SeedHack"
 
 export default {
-  name: 'Home',
+  name: "App",
   components: {
-    HelloWorld
+    SeedHack
   }
 }
 </script>
+
+<style>
+#app {
+  font-family: "Splatfont";
+  background-color: #111111;
+  color: #eeeeee;
+}
+
+body {
+  margin: 0 auto;
+  width: 90%;
+}
+
+h1 {
+  font-family: "Splatfont";
+  color: #eeeeee;
+}
+
+p {
+  font-family: "Splatfont";
+  color: #eeeeee;
+}
+</style>

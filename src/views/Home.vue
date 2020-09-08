@@ -1,8 +1,6 @@
 <template>
   <v-app>
     <div class="home">
-      <h1>What's SeedHack</h1>
-      <p>SeedHack is the best way to fix waves for Salmon Run in the Shoal. Please make sure the console applying SeedHack must be a host.</p>
       <SeedHack />
     </div>
   </v-app>
@@ -28,7 +26,7 @@ export default {
 
 body {
   margin: 0 auto;
-  width: 90%;
+  padding: 0 10 10 10;
 }
 
 h1 {

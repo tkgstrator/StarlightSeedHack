@@ -1,16 +1,16 @@
 <template>
   <v-container fluid>
-    <v-form v-model="valid" lazy-validation ref="form">
+    <v-form ref="form">
       <!-- <v-col class="d-flex" cols="6" sm="12"> -->
       <!-- <v-select :items="version" label="Version" dense dark></v-select> -->
       <!-- <v-select :items="version" label="Options" dense dark></v-select> -->
       <!-- </v-col> -->
       <v-col class="d-flex">
-        <v-select :items="event" item-text="title" label="Wave1" dense dark class="wave" v-model="wave1"></v-select>
-        <v-select :items="event" item-text="title" label="Wave2" dense dark class="wave" v-model="wave2"></v-select>
-        <v-select :items="event" item-text="title" label="Wave3" dense dark class="wave" v-model="wave3"></v-select>
+        <v-select :items="event" item-text="title" label="Wave1" dense dark class="wave" v-on:change="rule()" v-model="wave[0]"></v-select>
+        <v-select :items="event" item-text="title" label="Wave2" dense dark class="wave" v-on:change="rule()" v-model="wave[1]"></v-select>
+        <v-select :items="event" item-text="title" label="Wave3" dense dark class="wave" v-on:change="rule()" v-model="wave[2]"></v-select>
       </v-col>
-      <v-btn :disabled="!valid" class="mr-2" @click="search" dark>Search Seed</v-btn>
+      <v-btn :disabled="valid" class="mr-2" @click="search" dark>Search Seed</v-btn>
     </v-form>
     <v-container class="table">
       <p>Searching: {{ this.seed }} Found: {{ this.seeds.length }}</p>
@@ -20,9 +20,6 @@
 </template>
 
 <script>
-import { validationMixin } from "vuelidate"
-import { required } from 'vuelidate/lib/validators'
-
 class Random {
   constructor() { }
 
@@ -59,17 +56,8 @@ class Prob {
 }
 
 export default {
-  mixins: [validationMixin],
-
-  validations: {
-    version: { required },
-    wave1: { required },
-    wave2: { required },
-    wave3: { required },
-  },
-
   data: () => ({
-    valid: false,
+    valid: true,
     version: ["3.1.0", "5.3.0"],
     event: [
       {
@@ -137,9 +125,10 @@ export default {
         value: "06"
       },
     ],
-    wave1: "",
-    wave2: "",
-    wave3: "",
+    wave: [null, null, null],
+    wave1: null,
+    wave2: null,
+    wave3: null,
     seed: 0,
     maxValue: 0xFFFFFF,
     seeds: [],
@@ -161,6 +150,22 @@ export default {
   }),
 
   methods: {
+    rule() {
+      // 有効な組み合わせかどうかをチェックする
+      for (let idx = 0; idx < 3; ++idx) {
+        // nullがあれば検索無効
+        if (this.wave[idx] == null)
+          return
+      }
+      // WAVE2のイベント内容はWAVE1ともWAVE3とも違う
+      const wave1 = parseInt(this.wave[0].slice(-1))
+      const wave2 = parseInt(this.wave[1].slice(-1))
+      const wave3 = parseInt(this.wave[2].slice(-1))
+      console.log(wave1, wave2, wave3)
+      if (wave2 != 0 && (wave1 == wave2 || wave3 == wave2))
+        this.valid = true
+      else this.valid = false
+    },
     async convert(seeds) {
       this.seeds.splice(0, this.seeds.length)
       const url = "https://salmonia.mydns.jp/api/convert"

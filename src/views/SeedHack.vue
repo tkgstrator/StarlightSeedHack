@@ -24,10 +24,14 @@ class Random {
   constructor() { }
 
   init(seed) {
-    this.mSeed1 = Math.imul(0x6C078965, (seed ^ (seed >>> 30))) + 1;
-    this.mSeed2 = Math.imul(0x6C078965, (this.mSeed1 ^ (this.mSeed1 >>> 30))) + 2;
-    this.mSeed3 = Math.imul(0x6C078965, (this.mSeed2 ^ (this.mSeed2 >>> 30))) + 3;
-    this.mSeed4 = Math.imul(0x6C078965, (this.mSeed3 ^ (this.mSeed3 >>> 30))) + 4;
+    this.mSeed1 = (Math.imul(0x6C078965, (seed ^ (seed >>> 30))) + 1) >>> 0;
+    this.mSeed2 = (Math.imul(0x6C078965, (this.mSeed1 ^ (this.mSeed1 >>> 30))) + 2) >>> 0;
+    this.mSeed3 = (Math.imul(0x6C078965, (this.mSeed2 ^ (this.mSeed2 >>> 30))) + 3) >>> 0;
+    this.mSeed4 = (Math.imul(0x6C078965, (this.mSeed3 ^ (this.mSeed3 >>> 30))) + 4) >>> 0;
+    // this.mSeed1 = Math.imul(0x6C078965, (seed ^ (seed >>> 30))) + 1;
+    // this.mSeed2 = Math.imul(0x6C078965, (this.mSeed1 ^ (this.mSeed1 >>> 30))) + 2;
+    // this.mSeed3 = Math.imul(0x6C078965, (this.mSeed2 ^ (this.mSeed2 >>> 30))) + 3;
+    // this.mSeed4 = Math.imul(0x6C078965, (this.mSeed3 ^ (this.mSeed3 >>> 30))) + 4;
   }
 
   getU32() {
@@ -129,7 +133,7 @@ export default {
     wave1: null,
     wave2: null,
     wave3: null,
-    seed: 0,
+    seed: 0x0,
     maxValue: 0xFFFFFF,
     seeds: [],
     tmp: [],
@@ -196,13 +200,15 @@ export default {
     async search() {
       // まずは全要素を空っぽにする
       this.tmp.splice(0, this.tmp.length)
-      let sWave = this.wave1 + this.wave2 + this.wave3
+      let sWave = this.wave[0] + this.wave[1] + this.wave[2]
       const mProb = new Prob()
 
       for (this.seed = 0x0; this.seed <= this.maxValue && this.tmp.length < 20; ++this.seed) {
         let mWave = new Wave()
         let rnd = new Random();
         rnd.init(this.seed);
+
+        // console.log(rnd.mSeed1, rnd.mSeed2, rnd.mSeed3, rnd.mSeed4)
 
         for (let wave = 0; wave < 3; ++wave) {
           for (let event = 0, sum = 0; event < 7; ++event) {
@@ -224,7 +230,7 @@ export default {
         if (cWave == sWave)
           this.tmp.push(this.seed)
       }
-      console.log(this.tmp)
+      // console.log(this.tmp)
       this.convert(this.tmp)
     }
   }

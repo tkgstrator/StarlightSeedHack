@@ -109,7 +109,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap");
 
 .container {
@@ -122,7 +122,7 @@ export default {
 body {
   /* margin: 0 auto; */
   background-color: #111111;
-  width: 99%;
+  /* width: 99%; */
 }
 </style>
 <style scoped>

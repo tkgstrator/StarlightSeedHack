@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import SeedHack from "./SeedHack"
+import SeedHack from "./Search"
 
 export default {
   name: "App",
@@ -26,7 +26,7 @@ export default {
 
 body {
   margin: 0 auto;
-  padding: 0 10 10 10;
+  /* padding: 0 10 10 10; */
 }
 
 h1 {

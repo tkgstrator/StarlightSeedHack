@@ -5,7 +5,7 @@
       <v-btn :disabled="!valid" class="mr-2" @click="generate" dark>Generate</v-btn>
     </v-form>
     <v-container class="table">
-      <v-data-table :headers="headers" :items="mGameSeed" :items-per-page="100" :mobile-breakpoint="360" dark hide-default-footer dense></v-data-table>
+      <v-data-table :headers="headers" :items="mRareArray" :items-per-page="100" :mobile-breakpoint="360" dark hide-default-footer dense></v-data-table>
     </v-container>
   </v-container>
 </template>
@@ -39,17 +39,11 @@ export default {
       v => (parseInt(v) <= 0xFFFFFFFF && 0x0 <= parseInt(v)) || "Initial Seed must be number"
     ],
     mInitialSeed: 0x0,
-    mGameSeed: [],
+    mRareArray: [],
     headers: [
       {
-        text: "Type",
+        text: "Description",
         value: "type",
-        align: "center",
-        sortable: false,
-      },
-      {
-        text: "Initial Seed",
-        value: "mSeed",
         align: "center",
         sortable: false,
       },
@@ -89,24 +83,70 @@ export default {
   methods: {
     generate() {
       // まずは全要素を空っぽにする
-      this.mGameSeed.splice(0, this.mGameSeed.length)
-      let rnd = new Random()
-      rnd.init(this.mInitialSeed)
-      // rnd.getU32()
+      this.mRareArray.splice(0, this.mRareArray.length)
 
-      const mGameSeed = [this.mInitialSeed, rnd.getU32(), rnd.getU32(), rnd.getU32(), rnd.getU32(), rnd.getU32(), rnd.getU32()]
+      let mGameSeed = [this.mInitialSeed] // 各WAVEの乱数生成器を初期化するシード
+      let grnd = new Random() // ゲーム乱数生成器
+      grnd.init(this.mInitialSeed) // 初期シードでゲーム乱数生成器を初期化
+      grnd.getU32()
+      mGameSeed.push(grnd.getU32())
+      mGameSeed.push(grnd.getU32())
+      // パラメータ
+      const mRareType = ["Steelhead", "Flyfish", "Scrapper", "Steel Eel", "Tower", "Maws", "Drizzler"] // オオモノテーブルだけどこれで合っているのかは謎
+      const mWave = [
+        [-1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0], // 20
+        [-1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0], // 22
+        [-1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0], // 24
+      ]
 
-      for (let wave = 0; wave < mGameSeed.length; ++wave) {
+      console.log(mGameSeed)
+
+      // 全WAVEを計算する
+      for (let wave = 0; wave < 3; ++wave) {
+        let rnd = new Random()
         rnd.init(mGameSeed[wave])
-        for (let loop = 0; loop < 5; ++loop) {
-          this.mGameSeed.push({ type: `WAVE${wave + 1}`, mSeed: mGameSeed[wave].toString(16).toUpperCase(), mSeed1: rnd.mSeed1.toString(16).toUpperCase(), mSeed2: rnd.mSeed2.toString(16).toUpperCase(), mSeed3: rnd.mSeed3.toString(16).toUpperCase(), mSeed4: rnd.mSeed4.toString(16).toUpperCase(), mNumber: "-" })
-          rnd.getU32()
+        rnd.getU32() // Initialize
+        for (let loop = 0; loop < mWave[wave].length; ++loop) {
+          const srnd = new Random()
+          srnd.init(rnd.getU32()) // Initialize with seed genarated by rnd
+
+          // if (!mWave[wave][loop])
+          //   continue;
+
+          let mWeight = 0
+          let mProb = 0
+          let mTmpId = ""
+          let mRareId = ""
+
+          do {
+            if (mRareType.length <= mProb)
+              mTmpId = mRareType[0]
+            else
+              mTmpId = mRareType[mProb]
+
+            ++mWeight
+            if (!(parseInt((srnd.getU32() * mWeight) / Math.pow(2, 0x20))))
+              mRareId = mTmpId
+            if (mProb <= 6)
+              ++mProb
+            else
+              mProb = 6
+            // console.log(mProb, mWeight, mRareId, mTmpId)
+          } while (mProb != mRareType.length)
+          let mSeeds = [rnd.mSeed1, rnd.mSeed2, rnd.mSeed3, rnd.mSeed4]
+          // if (mWave[wave][loop] == 0)
+          //   this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: "-" })
+          if (mWave[wave][loop] == 1)
+            this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: mRareId })
         }
       }
     }
   }
 }
 
+function dechex(number) {
+  return ("00000000" + number.toString(16).toUpperCase()).slice(-8)
+}
 </script>
 
 <style>

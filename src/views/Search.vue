@@ -10,7 +10,7 @@
         <v-select :items="event" item-text="title" label="Wave2" dense dark class="wave" v-on:change="rule()" v-model="wave[1]"></v-select>
         <v-select :items="event" item-text="title" label="Wave3" dense dark class="wave" v-on:change="rule()" v-model="wave[2]"></v-select>
       </v-col>
-      <v-btn :disabled="valid" class="mr-2" @click="search" dark>Search Seed</v-btn>
+      <v-btn :disabled="valid" class="mr-2" @click="search" dark>Search</v-btn>
     </v-form>
     <v-container class="table">
       <p>Searching: {{ this.seed }} Found: {{ this.seeds.length }}</p>
@@ -238,7 +238,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap");
 
 .container {

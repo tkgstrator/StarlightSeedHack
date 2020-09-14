@@ -99,7 +99,7 @@ export default {
         [-1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0], // 24
       ]
 
-      console.log(mGameSeed)
+      console.log(dechex(mGameSeed[0]), dechex(mGameSeed[1]), dechex(mGameSeed[2]))
 
       // 全WAVEを計算する
       for (let wave = 0; wave < 3; ++wave) {
@@ -136,8 +136,8 @@ export default {
           let mSeeds = [rnd.mSeed1, rnd.mSeed2, rnd.mSeed3, rnd.mSeed4]
           // if (mWave[wave][loop] == 0)
           //   this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: "-" })
-          if (mWave[wave][loop] == 1)
-            this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: mRareId })
+          // if (mWave[wave][loop] == 1)
+          this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: mRareId })
         }
       }
     }

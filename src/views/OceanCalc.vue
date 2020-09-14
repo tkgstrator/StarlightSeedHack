@@ -5,12 +5,57 @@
       <v-btn :disabled="!valid" class="mr-2" @click="generate" dark>Generate</v-btn>
     </v-form>
     <v-container class="table">
-      <v-data-table :headers="headers" :items="mRareArray" :items-per-page="100" :mobile-breakpoint="360" dark hide-default-footer dense></v-data-table>
+      <v-data-table :headers="headers" :items="mOceanInfo" :items-per-page="100" :mobile-breakpoint="360" dark hide-default-footer dense></v-data-table>
     </v-container>
   </v-container>
 </template>
 
 <script>
+class Wave {
+  constructor() {
+    this.event = [0, 0, 0]
+    this.tide = [1, 1, 1]
+  }
+}
+
+class Prob {
+  constructor() {
+    this.event = [18, 1, 1, 1, 1, 1, 1];
+    this.tide = [1, 3, 1]
+  }
+}
+
+class Ocean {
+  constructor() { }
+
+  init(seed) {
+    this.rnd = new Random()
+    this.rnd.init(seed)
+    this.rnd.getU32()
+  }
+
+  getId(flg) {
+    let mRareId = "-"
+
+    const mRareType = ["Steelhead", "Flyfish", "Scrapper", "Steel Eel", "Tower", "Maws", "Drizzler"] // オオモノテーブルだけどこれで合っているのかは謎
+    let rnd = new Random()
+    rnd.init(this.rnd.getU32())
+
+    if (flg != 1)
+      return mRareId
+
+    for (let mProb = 0, mTmpId = ""; mProb < mRareType.length; ++mProb) {
+      if (mRareType.length <= mProb)
+        mTmpId = mRareType[0]
+      else
+        mTmpId = mRareType[mProb]
+      if (!(parseInt((rnd.getU32() * (mProb + 1)) / Math.pow(2, 0x20))))
+        mRareId = mTmpId
+    }
+    return mRareId
+  }
+}
+
 class Random {
   constructor() { }
 
@@ -39,7 +84,7 @@ export default {
       v => (parseInt(v) <= 0xFFFFFFFF && 0x0 <= parseInt(v)) || "Initial Seed must be number"
     ],
     mInitialSeed: 0x0,
-    mRareArray: [],
+    mOceanInfo: [],
     headers: [
       {
         text: "Description",
@@ -48,32 +93,20 @@ export default {
         sortable: false,
       },
       {
-        text: "mSeed1",
-        value: "mSeed1",
+        text: "WAVE1",
+        value: "mWave1",
         align: "center",
         sortable: false,
       },
       {
-        text: "mSeed2",
-        value: "mSeed2",
+        text: "WAVE2",
+        value: "mWave2",
         align: "center",
         sortable: false,
       },
       {
-        text: "mSeed3",
-        value: "mSeed3",
-        align: "center",
-        sortable: false,
-      },
-      {
-        text: "mSeed4",
-        value: "mSeed4",
-        align: "center",
-        sortable: false,
-      },
-      {
-        text: "getU32()",
-        value: "mNumber",
+        text: "WAVE3",
+        value: "mWave3",
         align: "center",
         sortable: false,
       },
@@ -83,69 +116,104 @@ export default {
   methods: {
     generate() {
       // まずは全要素を空っぽにする
-      this.mRareArray.splice(0, this.mRareArray.length)
+      this.mOceanInfo.splice(0, this.mOceanInfo.length)
 
       let mGameSeed = [this.mInitialSeed] // 各WAVEの乱数生成器を初期化するシード
+
       let grnd = new Random() // ゲーム乱数生成器
       grnd.init(this.mInitialSeed) // 初期シードでゲーム乱数生成器を初期化
-      grnd.getU32()
+
+      // 潮位とイベントを先読み
+      let mWave = new Wave() // WAVE情報を保存するクラス
+      const mProb = new Prob() // 確率情報をもっているクラス（配列でよくね？）
+
+      for (let wave = 0; wave < 3; ++wave) {
+        for (let event = 0, sum = 0; event < 7; ++event) {
+          if ((wave > 0) && (mWave.event[wave - 1] != 0) && (mWave.event[wave - 1] == event))
+            continue;
+          sum += mProb.event[event]
+          if ((grnd.getU32() * sum / Math.pow(2, 32)) < mProb.event[event])
+            mWave.event[wave] = event
+        }
+        for (let tide = 0, sum = 0; tide < 3; ++tide) {
+          if ((tide == 0) && (1 <= mWave.event[wave] && (mWave.event[wave] <= 3)))
+            continue;
+          sum += mProb.tide[tide];
+          if ((grnd.getU32() * sum / Math.pow(2, 32)) < mProb.tide[tide])
+            mWave.event[wave] == 6 ? mWave.tide[wave] = 0 : mWave.tide[wave] = tide
+        }
+      }
+      this.mOceanInfo.push({ type: "Tide", mWave1: tide(mWave.tide[0]), mWave2: tide(mWave.tide[1]), mWave3: tide(mWave.tide[2]) })
+      this.mOceanInfo.push({ type: "Event", mWave1: event(mWave.event[0]), mWave2: event(mWave.event[1]), mWave3: event(mWave.event[2]) })
+
+
+      grnd.init(this.mInitialSeed) // 初期シードでゲーム乱数生成器を初期化
+      grnd.getU32() // 謎の一発乱数消費
       mGameSeed.push(grnd.getU32())
       mGameSeed.push(grnd.getU32())
+
       // パラメータ
-      const mRareType = ["Steelhead", "Flyfish", "Scrapper", "Steel Eel", "Tower", "Maws", "Drizzler"] // オオモノテーブルだけどこれで合っているのかは謎
-      const mWave = [
-        [-1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0], // 20
-        [-1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0], // 22
+      const mWaveArray = [
+        [-1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, -1, -1, -1, -1], // 20
+        [-1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, -1, -1, 0, 0], // 22
         [-1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0], // 24
       ]
 
-      console.log(mGameSeed)
-
       // 全WAVEを計算する
-      for (let wave = 0; wave < 3; ++wave) {
-        let rnd = new Random()
-        rnd.init(mGameSeed[wave])
-        rnd.getU32() // Initialize
-        for (let loop = 0; loop < mWave[wave].length; ++loop) {
-          const srnd = new Random()
-          srnd.init(rnd.getU32()) // Initialize with seed genarated by rnd
+      let ocean = [new Ocean(), new Ocean(), new Ocean()]
+      ocean[0].init(mGameSeed[0])
+      ocean[1].init(mGameSeed[1])
+      ocean[2].init(mGameSeed[2])
 
-          // if (!mWave[wave][loop])
-          //   continue;
-
-          let mWeight = 0
-          let mProb = 0
-          let mTmpId = ""
-          let mRareId = ""
-
-          do {
-            if (mRareType.length <= mProb)
-              mTmpId = mRareType[0]
-            else
-              mTmpId = mRareType[mProb]
-
-            ++mWeight
-            if (!(parseInt((srnd.getU32() * mWeight) / Math.pow(2, 0x20))))
-              mRareId = mTmpId
-            if (mProb <= 6)
-              ++mProb
-            else
-              mProb = 6
-            // console.log(mProb, mWeight, mRareId, mTmpId)
-          } while (mProb != mRareType.length)
-          let mSeeds = [rnd.mSeed1, rnd.mSeed2, rnd.mSeed3, rnd.mSeed4]
-          // if (mWave[wave][loop] == 0)
-          //   this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: "-" })
-          if (mWave[wave][loop] == 1)
-            this.mRareArray.push({ type: `Wave${wave + 1}(${loop + 1})`, mSeed1: dechex(mSeeds[0]), mSeed2: dechex(mSeeds[1]), mSeed3: dechex(mSeeds[2]), mSeed4: dechex(mSeeds[3]), mNumber: mRareId })
+      for (let loop = 0; loop < 35; ++loop) {
+        let mRareArray = []
+        for (let wave = 0; wave < 3; ++wave) {
+          if (mWave.event[wave] == 0)
+            mRareArray.push(ocean[wave].getId(mWaveArray[wave][loop]))
+          else
+            mRareArray.push("-")
         }
+        // if (mWaveArray[wave][loop] == 1)
+        this.mOceanInfo.push({ type: `${loop + 1}`, mWave1: mRareArray[0], mWave2: mRareArray[1], mWave3: mRareArray[2] })
       }
     }
   }
 }
 
-function dechex(number) {
-  return ("00000000" + number.toString(16).toUpperCase()).slice(-8)
+// function dechex(number) {
+//   return ("00000000" + number.toString(16).toUpperCase()).slice(-8)
+// }
+
+function tide(number) {
+  switch (number) {
+    case 0:
+      return "Low"
+    case 1:
+      return "Normal"
+    case 2:
+      return "High"
+  }
+}
+
+function event(number) {
+  switch (number) {
+    case 0:
+      return "No Event"
+    case 1:
+      return "Rush"
+    case 2:
+      return "Goldie Seeking"
+    case 3:
+      return "Griller"
+    case 4:
+      return "The Mothership"
+    case 5:
+      return "Fog"
+    case 6:
+      return "Cohock Charge"
+    default:
+      return
+  }
 }
 </script>
 

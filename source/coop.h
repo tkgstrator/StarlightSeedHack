@@ -7,56 +7,50 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <new>
 
 namespace Coop
 {
-    class Setting
+    class WaveMgr
     {
     public:
-        Setting(u32 seed, bool fast = true, bool regex = false) : mSeed{seed}, mFast{fast}, mRegex{regex}
+        WaveMgr() : mWaveSeed(0) {}
+        WaveMgr(u8 wave, u32 seed) : mWaveSeed(seed), mWave(wave)
         {
-            rnd.init(seed);
-        };
-        Setting();
-        ~Setting() = default;
-        bool getWaveInfo(std::string);
-        // bool getWaveInfo(std::regex);
-        std::string mSetting;
-        struct Prob
-        {
-            const u16 event[7] = {18, 1, 1, 1, 1, 1, 1};
-            const u16 tide[3] = {1, 3, 1};
-        };
+            rnd.init(mWaveSeed);
+            rnd.getU32();
+            getWaveArray();
+        }
+        ~WaveMgr() = default;
 
-        struct Wave
-        {
-            u16 event[3] = {0, 0, 0};
-            u16 tide[3] = {1, 1, 1};
-        };
+        // メンバ変数
+        sead::Random rnd; // WAVEごとの乱数生成器
+        u32 mWaveSeed;
+        u16 mWave;
+        void getWaveArray();
+        u8 getEnemyAppearId(u64, u8);
 
     protected:
-        sead::Random rnd;
-        // static const std::regex reg[1] = [std::regex("")];
-        // const std::regex reg[2] = {std::regex(""), std::regex("")};
-        const u32 mSeed;
-        const bool mFast;
-        const bool mRegex;
     };
 
-    class Geyser
+    class Ocean
     {
     public:
-        Geyser(u16 stage, u32 seed);
-        ~Geyser() = default;
-        void getGeyser();
-        std::vector<std::string> mPosition = {"", "", ""};
+        Ocean(u32 seed) : mGameSeed(seed)
+        {
+            rnd.init(mGameSeed);
+            rnd.getU32();
+            mWaveMgr[0] = WaveMgr(0, mGameSeed);
+            mWaveMgr[1] = WaveMgr(1, rnd.getU32());
+            mWaveMgr[2] = WaveMgr(2, rnd.getU32());
+        }
+        ~Ocean() = default;
+
+        u8 mWave[3]; // 三つのWAVEの情報が入っている
+        WaveMgr mWaveMgr[3];
 
     private:
-        sead::Random rnd;
-        sead::Random grnd;
-        std::vector<u32> mGameSeed;
-        std::vector<bool> mReuse;
-        std::vector<std::string> mSucc;
-        std::vector<std::vector<std::string>> mGoal;
+        sead::Random rnd;    // ゲーム乱数生成器
+        const u32 mGameSeed; // ゲームシード
     };
 }; // namespace Coop

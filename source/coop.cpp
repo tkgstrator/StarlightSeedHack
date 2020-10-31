@@ -6,43 +6,71 @@
 
 namespace Coop
 {
+
+    bool WaveMgr::isEasyWave(u8 id)
+    {
+        for (u8 idx = 0; idx < 10; ++idx)
+        {
+            if (idx <= 7)
+                if (id != mAppearIds[idx])
+                    return false;
+            if (idx >= 8)
+                if (id == mAppearIds[idx])
+                    return false;
+        }
+        return true;
+    }
+
+    // bool WaveMgr::isEasyWave(u8 id)
+    // {
+    //     u8 mId = 0;
+    //     for (u8 idx = 0; idx < 10; ++idx)
+    //     {
+    //         if (idx == 0)
+    //             mId = mAppearIds[idx]; // 最初の状態をコピーする
+    //         if (idx >= 1 && idx <= 7)
+    //             if (mId != mAppearIds[idx])
+    //                 return false;
+    //         if (idx >= 8)
+    //             if (mId == mAppearIds[idx])
+    //                 return false;
+    //     }
+    //     return true;
+    // }
+
     u8 WaveMgr::getEnemyAppearId(u64 random, u8 id)
     {
         u8 mArray[3] = {1, 2, 3};
-        u8 w9;
-        u8 x9, x10, x11, x12;
+        u8 x9, w9, x10, x11, x12, v17;
         u8 *x7, *w7;
-        u64 w8, x8;
-        u8 v17;
+        u64 x8, w8;
         u8 v5 = id; // mAppearId
         u8 x6 = 3;  // mAppearIdMax
+        u8 w6 = 3;
 
-        // // ここでw6が減る
-        // if (!(v5 & 0x80000000))
-        // {
-        //     if (!w6)
-        //         return v5; // 現在の値をそのまま返す（でもそんなことはないはず）
-        //     w7 = mArray;
-        //     w8 = w6 - 1;
-        //     do
-        //     {
-        //         v17 = w8;
-        //         w9 = *w7;
-        //         if (*w7 < v5)
-        //             break;
-        //         w6 -= w9 == v5;
-        //         if (w9 == v5)
-        //             break;
-        //         w8 = v17 - 1;
-        //         ++w7;
-        //     } while (v17);
-        // }
-        // if (w6 < 1)
-        //     return v5;
+        w7 = mArray;
+        if (!(v5 & 0x80000000))
+        {
+            if (!w6)
+                return v5;
+            w8 = w6 - 1;
+            do
+            {
+                v17 = w8;
+                w9 = *w7;
+                if (*w7 < v5)
+                    break;
+                w6 -= w9 == v5;
+                if (w9 == v5)
+                    break;
+                w8 = v17 - 1;
+                ++w7;
+            } while (v17);
+        }
+        if (w6 < 1)
+            return v5;
 
-        // if (!x6)
-        //     return v5;
-        u8 w6 = id == 3 ? 3 : id + 1; // mAppearIdMax
+        // u8 w6 = id == 3 ? 3 : id + 1; // mAppearIdMax
         x7 = mArray;
         x8 = random * w6 >> 0x20;
 
@@ -52,23 +80,11 @@ namespace Coop
             x10 = x8 == 0 ? 0 : x8 - 1;
             x11 = x8 == 0 ? *x7 : id;
             x12 = x9 == v5 ? 5 : x8 == 0;
-            // if (x8)
-            //     x11 = id;
-            // else
-            //     x11 = *x7;
-            // if (x9 == v5)
-            //     x12 = 5;
-            // else
-            //     x12 = x8 == 0;
             if (x9 != v5)
             {
                 x8 = LODWORD(x10);
                 id = x11;
             }
-            // if (x9 != v5)
-            //     x8 = LODWORD(x10);
-            // if (x9 != v5)
-            //     id = x11;
             if ((x12 & 7) != 5 && x12 & 7)
                 break;
             --x6;
@@ -76,8 +92,6 @@ namespace Coop
             if (!x6)
                 return v5;
         }
-        // if (!x12)
-        //     return v5;
         return id;
     }
 
@@ -85,7 +99,7 @@ namespace Coop
     {
         sead::Random mRnd; // オオモノ出現のための乱数
 
-        u8 mEnemyAppearId = 1;
+        u8 mEnemyAppearId = -1;
         u8 mPhase[35];
 
         const u8 wave0[35] = {2, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 3, 3, 3, 3}; // 20
@@ -99,16 +113,23 @@ namespace Coop
         if (mWave == 2)
             memcpy(mPhase, wave2, sizeof(u8) * 35);
 
-        for (u8 value : mPhase)
+        u8 mCount = 0;
+        for (const u8 &value : mPhase)
         {
+            // u8 value = mPhase[idx];
+
             if (value == 2)
-                rnd.getU32(); // 無意味に乱数を消費
+            {
+                const u64 random = rnd.getU32();
+                mEnemyAppearId = Coop::WaveMgr::getEnemyAppearId(random, mEnemyAppearId);
+            }
 
             if (value == 0)
             {
                 const u64 random = rnd.getU32();
                 mEnemyAppearId = Coop::WaveMgr::getEnemyAppearId(random, mEnemyAppearId);
-                printf("RN-> %08X %d\n", random, mEnemyAppearId);
+                mAppearIds[mCount] = mEnemyAppearId;
+                mCount++;
             }
 
             // オオモノシャケ出現
@@ -124,19 +145,9 @@ namespace Coop
                 // printf("RN-> %08X %d\n", random, mRareId);
             }
         }
-        printf("\n");
-        // for (u16 time = 0; time < 35; ++time)
-        // {
-        //     mWaveRnd.init(rnd.getU32());
-        //     u16 mRareId = 0;
-        //     for (u64 mProb = 0; mProb < 7; ++mProb)
-        //     {
-        //         if (!(mWaveRnd.getU32() * (mProb + 1) >> 0x20))
-        //             mRareId = mProb;
-        //     }
-        // }
     }
-    // u32 Ocean::getWaveInfo()
+
+    // void Ocean::getWaveInfo()
     // {
     //     const u16 mEvent[7] = {18, 1, 1, 1, 1, 1, 1};
     //     const u16 mTide[3] = {1, 3, 1};
@@ -163,36 +174,6 @@ namespace Coop
     //     }
     //     u32 result = mWave.tide[0] * 100000 + mWave.event[0] * 10000 + mWave.tide[1] * 1000 + mWave.event[1] * 100 + mWave.tide[2] * 10 + mWave.event[2];
     //     return result;
-    // }
-
-    // RareArray Ocean::getRareArray()
-    // {
-    //     sead::Random mWaveRnd;
-    //     RareArray mEnemy;
-    //     // uint16_t mEnemyArray[66];
-
-    //     for (u16 wave = 0, mWave = 0; wave < 3; ++wave)
-    //     {
-    //         sead::Random rnd;
-    //         rnd.init(mWaveSeed[wave]);
-    //         rnd.getU32();
-    //         for (u16 time = 0; time < 35; ++time)
-    //         {
-    //             mWaveRnd.init(rnd.getU32());
-    //             u16 mRareId = 0;
-    //             for (u64 mProb = 0; mProb < 7; ++mProb)
-    //             {
-    //                 if (!(mWaveRnd.getU32() * (mProb + 1) >> 0x20))
-    //                     mRareId = mProb;
-    //             }
-    //             if (mEnemy.mTime[wave][time])
-    //             {
-    //                 mEnemy.mArray[mWave] = mRareId;
-    //                 mWave++;
-    //             }
-    //         }
-    //     }
-    //     return mEnemy;
     // }
 
     // bool Ocean::getGeyserValue(u16 stage, u16 wave)

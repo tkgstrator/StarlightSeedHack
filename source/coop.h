@@ -29,8 +29,10 @@ namespace Coop
         u16 mWave;
         void getWaveArray();
         u8 getEnemyAppearId(u64, u8);
+        bool isEasyWave(u8);
 
     protected:
+        u8 mAppearIds[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     };
 
     class Ocean
@@ -46,6 +48,7 @@ namespace Coop
         }
         ~Ocean() = default;
 
+        // void getWaveInfo();
         u8 mWave[3]; // 三つのWAVEの情報が入っている
         WaveMgr mWaveMgr[3];
 

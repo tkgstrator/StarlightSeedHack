@@ -41,7 +41,7 @@ class Ocean:
     
 
 class WaveMgr:
-    rnd = NSRandom.NSRandom()
+    rnd = NSRandom.NSRandom() # WAVE用の乱数生成器
     mWaveNum = 0x0 # WAVE数
     mWaveSeed = 0x00000000 # WAVE SEED
     mWaveArray = [
@@ -57,18 +57,22 @@ class WaveMgr:
         self.mWaveNum = wave # WAVE数をセット
         self.mAppearIds = [] # 湧き方向配列
         self.mBossIds = [] # 出現するオオモノの配列
+        self.mBossAppearIds = [] ## 出現するオオモノと湧き方向をまとめたもの
         self.rnd.init(self.mWaveSeed)
         self.rnd.getU32()
         self.getWaveArray()
 
     def getWaveArray(self): # 湧き方向とオオモノの種類を出力
         mArray = self.mWaveArray[self.mWaveNum] # WAVE配列をセット
-        # print("WAVE ARRAY", mArray)
-        for value in mArray:
+        mTmp = [] # 仮の配列
+        for index, value in enumerate(mArray):
             if value == 2: # 初期化のみ
                 random = self.rnd.getU32()
                 self.mEnemyAppearId = self.getEnemyAppearId(random, self.mEnemyAppearId)
             if value == 0: # 湧き方向が変化した
+                if index != 1:
+                    self.mBossAppearIds.append([self.mEnemyAppearId, mTmp])
+                    mTmp = []
                 random = self.rnd.getU32()
                 self.mEnemyAppearId = self.getEnemyAppearId(random, self.mEnemyAppearId)
                 self.mAppearIds.append(self.mEnemyAppearId)
@@ -81,6 +85,7 @@ class WaveMgr:
                     if not (mRnd.getU32() * (mProb + 1) >> 0x20):
                         mRareId = mProb
                 self.mBossIds.append(mRareId)
+                mTmp.append(mRareId)
 
     def getEnemyAppearId(self, random, id): # 湧き方向を計算する関数
         mArray = [1, 2, 3]

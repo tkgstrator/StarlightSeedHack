@@ -178,6 +178,27 @@ class WaveMgr:
         self.rnd.getU32()
         self.getWaveArray()
 
+    
+    def getGeyserPos(self):
+        print("mWaveSeed", hex(self.mWaveSeed))
+        self.rnd.init(self.mWaveSeed)
+        mReuse = [False, False, False, False]
+        mPos = ["D", "E", "F", "G"]
+        mSucc = []
+        
+        print("Range", list(range(len(mPos) - 1, 0, -1)))
+        for idx in range(15):
+            for sel in range(len(mPos) - 1, 0, -1):
+                print("Geyser: RN({index}) -> {mSeed1} {mSeed2} {mSeed3} {mSeed4}".format(index=idx, mSeed1=hex(self.rnd.mSeed1), mSeed2=hex(self.rnd.mSeed2), mSeed3=hex(self.rnd.mSeed3), mSeed4=hex(self.rnd.mSeed4)))
+                index = (self.rnd.getU32() * (sel + 1)) >> 0x20
+                mPos[sel], mPos[index] = mPos[index], mPos[sel]
+                # print(idx, mPos, sel, index)
+                mReuse[sel], mReuse[index] = mReuse[index], mReuse[sel]
+            mSucc += mPos[0]
+            if mReuse[0]:
+                self.rnd.getU32()
+        return mSucc
+
     def getWaveArray(self):  # 湧き方向とオオモノの種類を出力
         mArray = self.mWaveArray[self.mWaveNum]  # WAVE配列をセット
         mTmp = []  # 仮の配列

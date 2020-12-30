@@ -1,6 +1,6 @@
 from library import Ocean
 
-FILENAME = "222122.txt"
+FILENAME = "222010.txt"
 OUTPUT = "Output.txt"
 
 # FILENAME = "Output.txt"
@@ -33,8 +33,9 @@ if __name__ == "__main__":
         #             print(mSeed, mOcean.mWaveMgr[1].mAppearIds[0])
 
         with open(FILENAME, mode="r") as f:
+            # mOutput = []
             for mLine in f:
-                mSeed = int("0x" + mLine, 16)
+                mSeed = int(mLine, 16)
                 mOcean.init(mSeed)
                 mOcean.getWaveInfo()
                 
@@ -45,9 +46,19 @@ if __name__ == "__main__":
                 # if isValidWave(mOcean.mWaveMgr):
                 #     fw.write(mLine)
                 mOcean.setWaveMgr()
-                print("Geyser", mOcean.mWaveMgr[0].getGeyserPos())
-                print(hex(mOcean.mGameSeed), mOcean.mEvent, mOcean.mTide)
-                break
+
+                # print("\r ${mLine}" .format(mLine=mLine.strip()), end="")
+                if mOcean.mWaveMgr[1].mAppearIds == [2, 1, 2, 1, 3, 3, 3, 1, 3, 3]:
+                    if mOcean.mWaveMgr[2].mAppearIds[:6] == [3, 3, 3, 3, 1, 2]:
+                        fw.write(mLine)
+
+                # mPos = mOcean.mWaveMgr[0].getGeyserPos()[:7]
+                # print("\r ${mLine}" .format(mLine=mLine.strip()), end="")
+                # if mPos == ["E", "E", "G", "D", "E", "D", "D"]:
+                #     fw.write(mLine)
+                    # mOutput.append(mSeed)
+                    # break
+        # fw.writelines(mOutput)
                 # counter = [0, 0, 0, 0, 0, 0, 0]
                 # for idx in range(7):
                 #     counter[idx] += mOcean.mWaveMgr[2].mBossIds[idx]

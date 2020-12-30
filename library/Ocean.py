@@ -180,16 +180,16 @@ class WaveMgr:
 
     
     def getGeyserPos(self):
-        print("mWaveSeed", hex(self.mWaveSeed))
+        # print("mWaveSeed", hex(self.mWaveSeed))
         self.rnd.init(self.mWaveSeed)
         mReuse = [False, False, False, False]
         mPos = ["D", "E", "F", "G"]
         mSucc = []
         
-        print("Range", list(range(len(mPos) - 1, 0, -1)))
+        # print("Range", list(range(len(mPos) - 1, 0, -1)))
         for idx in range(15):
             for sel in range(len(mPos) - 1, 0, -1):
-                print("Geyser: RN({index}) -> {mSeed1} {mSeed2} {mSeed3} {mSeed4}".format(index=idx, mSeed1=hex(self.rnd.mSeed1), mSeed2=hex(self.rnd.mSeed2), mSeed3=hex(self.rnd.mSeed3), mSeed4=hex(self.rnd.mSeed4)))
+                # print("Geyser: RN({index}) -> {mSeed1} {mSeed2} {mSeed3} {mSeed4}".format(index=idx, mSeed1=hex(self.rnd.mSeed1), mSeed2=hex(self.rnd.mSeed2), mSeed3=hex(self.rnd.mSeed3), mSeed4=hex(self.rnd.mSeed4)))
                 index = (self.rnd.getU32() * (sel + 1)) >> 0x20
                 mPos[sel], mPos[index] = mPos[index], mPos[sel]
                 # print(idx, mPos, sel, index)

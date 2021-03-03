@@ -2,10 +2,12 @@ from library import NSRandom
 
 
 class Ocean:
+    mEvent = [0, 0, 0]
+    mTide = [0, 0, 0]
     def __init__(self):
         self.rnd = NSRandom.NSRandom()  # シードごとの乱数生成器（ボス的な存在
-        self.mEvent = [0, 0, 0]  # イベント情報
-        self.mTide = [0, 0, 0]  # 潮位情報
+        # self.mEvent = [0, 0, 0]  # イベント情報
+        # self.mTide = [0, 0, 0]  # 潮位情報
         self.mWaveMgr = []  # 各WAVE情報は最初はNoneを保持
         self.mGameSeed = 0x00000000  # 設定された初期ゲームシード
 
@@ -48,10 +50,12 @@ class Ocean:
                     self.mTide[wave] = 0 if self.mEvent[wave] == 6 else tide
 
 
-class WaveMgr:
+class WaveMgr(Ocean):
     rnd = NSRandom.NSRandom()  # WAVE用の乱数生成器
     mWaveNum = 0x0  # WAVE数
     mWaveSeed = 0x00000000  # WAVE SEED
+    # mTide = 0x0 # 潮位
+    # mEvent = 0x0 # イベント内容
     mWaveArray = [
         # 0は湧き方向変化, 1はオオモノ出現, 2は乱数消費のみ, 3は揃えるためにあって何もしない
         [
@@ -171,6 +175,8 @@ class WaveMgr:
     def __init__(self, wave, seed):
         self.mWaveSeed = seed  # WAVE SEEDをセット
         self.mWaveNum = wave  # WAVE数をセット
+        self.mEventType = self.mEvent[wave]
+        self.mWaterLevel = self.mTide[wave]
         self.mAppearIds = []  # 湧き方向配列
         self.mBossIds = []  # 出現するオオモノの配列
         self.mBossAppearIds = []  ## 出現するオオモノと湧き方向をまとめたもの
@@ -179,22 +185,57 @@ class WaveMgr:
         self.getWaveArray()
 
     
-    def getGeyserPos(self):
-        # print("mWaveSeed", hex(self.mWaveSeed))
+    def getGeyserPos(self, stage_id):
         self.rnd.init(self.mWaveSeed)
-        mReuse = [False, False, False, False]
-        mPos = ["D", "E", "F", "G"]
+        if self.mWaterLevel == 2:
+            if stage_id == 0:
+                mReuse = [True, True, True, True, True]
+                mPos = ["E", "F", "G", "H", "I"]
+            if stage_id == 1:
+                mReuse = [True, False, True, True]
+                mPos = ["E", "F", "G", "H"]
+            if stage_id == 2:
+                mReuse = [False, True, True, True, True]
+                mPos = ["A", "B", "G", "H", "I"]
+            if stage_id == 3:
+                mReuse = [True, True, True, True, True]
+                mPos = ["C", "D", "E", "F", "G"]
+            if stage_id == 4:
+                mReuse = [False, False, False, False]
+                mPos = ["D", "E", "F", "G"]
+        if self.mWaterLevel == 1:
+            if stage_id == 0:
+                mReuse = [False, False, False, False, False, False, False, False, False]
+                mPos = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+            if stage_id == 1:
+                mReuse = [False, False, False, False, False, False, False, False]
+                mPos = ["A", "B", "C", "D", "E", "F", "G", "H"]
+            if stage_id == 2:
+                mReuse = [False, False, False, False, False, False, False, False, False]
+                mPos = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+            if stage_id == 3:
+                mReuse = [False, False, False, False, False, False, False]
+                mPos = ["A", "B", "C", "D", "E", "F", "G"]
+            if stage_id == 4:
+                mReuse = [False, False, False, False, False, False, False]
+                mPos = ["A", "B", "C", "D", "E", "F", "G"]
         mSucc = []
-        
-        # print("Range", list(range(len(mPos) - 1, 0, -1)))
-        for idx in range(15):
+        mTmp = ""
+
+        for idx in range(3):
             for sel in range(len(mPos) - 1, 0, -1):
-                # print("Geyser: RN({index}) -> {mSeed1} {mSeed2} {mSeed3} {mSeed4}".format(index=idx, mSeed1=hex(self.rnd.mSeed1), mSeed2=hex(self.rnd.mSeed2), mSeed3=hex(self.rnd.mSeed3), mSeed4=hex(self.rnd.mSeed4)))
                 index = (self.rnd.getU32() * (sel + 1)) >> 0x20
                 mPos[sel], mPos[index] = mPos[index], mPos[sel]
-                # print(idx, mPos, sel, index)
                 mReuse[sel], mReuse[index] = mReuse[index], mReuse[sel]
-            mSucc += mPos[0]
+            
+            mTmp += mPos[0]
+            mSucc.append(mTmp)
+            # if idx == 0:
+            #     mSucc.append(f"{mPos[0]}{str(idx)}")
+            #     mTmp = mPos[0]
+            # else:
+            #     mSucc.append(f"{mTmp}->{mPos[0]}{str(idx)}")
+            #     mTmp = mPos[0]
             if mReuse[0]:
                 self.rnd.getU32()
         return mSucc

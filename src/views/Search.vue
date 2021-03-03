@@ -28,10 +28,6 @@ class Random {
     this.mSeed2 = (Math.imul(0x6C078965, (this.mSeed1 ^ (this.mSeed1 >>> 30))) + 2) >>> 0;
     this.mSeed3 = (Math.imul(0x6C078965, (this.mSeed2 ^ (this.mSeed2 >>> 30))) + 3) >>> 0;
     this.mSeed4 = (Math.imul(0x6C078965, (this.mSeed3 ^ (this.mSeed3 >>> 30))) + 4) >>> 0;
-    // this.mSeed1 = Math.imul(0x6C078965, (seed ^ (seed >>> 30))) + 1;
-    // this.mSeed2 = Math.imul(0x6C078965, (this.mSeed1 ^ (this.mSeed1 >>> 30))) + 2;
-    // this.mSeed3 = Math.imul(0x6C078965, (this.mSeed2 ^ (this.mSeed2 >>> 30))) + 3;
-    // this.mSeed4 = Math.imul(0x6C078965, (this.mSeed3 ^ (this.mSeed3 >>> 30))) + 4;
   }
 
   getU32() {
@@ -59,10 +55,18 @@ class Prob {
   }
 }
 
+function hex(number) {
+  return "0x" + ("00000000" + number.toString(16).toUpperCase()).substr(-8)
+}
+
+function chunked(array) {
+  return array.reduce((newarray, _, i) => (i % 2 ? newarray : [...newarray, array.slice(i, i+2)]), [])
+}
+
 export default {
   data: () => ({
     valid: true,
-    version: ["3.1.0", "5.3.0"],
+    version: ["3.1.0", "5.4.1"],
     event: [
       {
         title: "LT-NoEvent",
@@ -172,16 +176,16 @@ export default {
     },
     async convert(seeds) {
       this.seeds.splice(0, this.seeds.length)
-      const url = "https://salmonia.mydns.jp/api/convert"
+      const asm = seeds.map(x => `MOV X0, #${hex(x & 0xFFFF0000)}\nMOVK X0, #${hex(x & 0xFFFF)}`).join("\n")
+      const url = "https://script.google.com/macros/s/AKfycbwIfvHDEmARUdEH5RGa17ewH4ezMVmm2ta3MdCa4adN2f0UDVA/exec"
       const body = {
-        seeds: seeds
+        arch: ["arm64"],
+        asm: asm
       }
       const response = await fetch(url, { method: "POST", body: JSON.stringify(body) })
-      const arm64 = await response.json()
+      const arm64 = chunked((await response.json())["arm64"]).map(x => x.join(""))
 
-      // 0xFFFF以下のシードの件数を求める
       const offset = this.tmp.length * 2 - arm64.length
-      // console.log(offset, arm64)
 
       this.tmp.forEach((seed, index) => {
         switch (index < offset) {

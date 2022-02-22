@@ -93,8 +93,10 @@ First, you must find the address for SeedHack.
 | 5.2.2 | 003753B0 |
 | 5.3.0 | 003753B0 |
 | 5.3.1 | 00XXXXXX |
+| 5.4.0 | 00XXXXXX |
+| 5.5.0 | 00XXXXXX |
 
-To prevent using online match making, I can't list the latest version's address. Search it by yourself or wait for release 5.3.2/5.4.0.
+To prevent using online match making, I can't list the latest version's address. Search it by yourself or wait for release 5.5.1/5.6.0.
 
 ## Code
 Convert ARM to HEX on [Online HEX to ARM Converter](http://armconverter.com/).
